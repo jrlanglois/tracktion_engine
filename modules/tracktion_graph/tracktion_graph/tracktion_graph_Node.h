@@ -209,10 +209,10 @@ protected:
 
 private:
     std::atomic<bool> hasBeenProcessed { false };
-    juce::AudioBuffer<float> audioBuffer;
+    choc::buffer::ChannelArrayBuffer<float> audioBuffer;
     tracktion_engine::MidiMessageArray midiBuffer;
     std::atomic<int> numSamplesProcessed { 0 };
-
+    
    #if JUCE_DEBUG
     std::atomic<bool> isBeingProcessed { false };
    #endif
@@ -278,7 +278,7 @@ inline void Node::initialise (const PlaybackInitialisationInfo& info)
     prepareToPlay (info);
     
     auto props = getNodeProperties();
-    audioBuffer.setSize (props.numberOfChannels, info.blockSize);
+    audioBuffer.resize ({ (uint32_t) props.numberOfChannels, (uint32_t) info.blockSize });
 }
 
 inline void Node::prepareForNextBlock (juce::Range<int64_t> referenceSampleRange)
@@ -296,15 +296,15 @@ inline void Node::process (juce::Range<int64_t> referenceSampleRange)
 
     audioBuffer.clear();
     midiBuffer.clear();
-    const int numChannelsBeforeProcessing = audioBuffer.getNumChannels();
-    const int numSamplesBeforeProcessing = audioBuffer.getNumSamples();
+    const auto numChannelsBeforeProcessing = audioBuffer.getNumChannels();
+    const auto numSamplesBeforeProcessing = audioBuffer.getNumFrames();
     juce::ignoreUnused (numChannelsBeforeProcessing, numSamplesBeforeProcessing);
 
     const int numSamples = (int) referenceSampleRange.getLength();
     jassert (numSamples > 0); // This must be a valid number of samples to process
-    jassert (numChannelsBeforeProcessing == 0 || numSamples <= audioBuffer.getNumSamples());
+    jassert (numChannelsBeforeProcessing == 0 || numSamples <= audioBuffer.getNumFrames());
 
-    auto inputBlock = numChannelsBeforeProcessing > 0 ? juce::dsp::AudioBlock<float> (audioBuffer).getSubBlock (0, (size_t) numSamples)
+    auto inputBlock = numChannelsBeforeProcessing > 0 ? juce::dsp::AudioBlock<float> (toAudioBlock (audioBuffer)).getSubBlock (0, (size_t) numSamples)
                                                       : juce::dsp::AudioBlock<float>();
     ProcessContext pc {
                         referenceSampleRange,
@@ -315,7 +315,7 @@ inline void Node::process (juce::Range<int64_t> referenceSampleRange)
     hasBeenProcessed.store (true, std::memory_order_release);
     
     jassert (numChannelsBeforeProcessing == audioBuffer.getNumChannels());
-    jassert (numSamplesBeforeProcessing == audioBuffer.getNumSamples());
+    jassert (numSamplesBeforeProcessing == audioBuffer.getNumFrames());
 
    #if JUCE_DEBUG
     isBeingProcessed = false;
@@ -330,7 +330,7 @@ inline bool Node::hasProcessed() const
 inline Node::AudioAndMidiBuffer Node::getProcessedOutput()
 {
     jassert (hasProcessed());
-    return { juce::dsp::AudioBlock<float> (audioBuffer).getSubBlock (0, (size_t) numSamplesProcessed.load (std::memory_order_acquire)), midiBuffer };
+    return { juce::dsp::AudioBlock<float> (toAudioBlock (audioBuffer)).getSubBlock (0, (size_t) numSamplesProcessed.load (std::memory_order_acquire)), midiBuffer };
 }
 
 
