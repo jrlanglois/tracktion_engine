@@ -454,6 +454,9 @@ struct SeparateChannelLayout
 
     static SeparateChannelLayout createAllocated (Size size)
     {
+        if (size.numChannels == 0)
+            return {};
+
         auto channelDataSize = getChannelDataSize (size.numFrames);
         auto dataSize = channelDataSize * size.numChannels;
         auto listSize = sizeof (SampleType*) * size.numChannels;
