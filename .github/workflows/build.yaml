@@ -56,7 +56,7 @@ jobs:
             export GRAPH_UNIT_TESTS_QUICK_VALIDATE=0
           fi
 
-          ./tests/run_tests
+          ./tests/build
 
       # Upload test results
       - uses: actions/upload-artifact@v2
