@@ -12,14 +12,6 @@ if (APPLE)
     set (CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE INTERNAL "")
 endif()
 
-if (LINUX)
-    # set (CMAKE_C_FLAGS "gcc-7" CACHE INTERNAL "")
-    # set (CMAKE_CXX_FLAGS "g++-7" CACHE INTERNAL "")
-    set (CMAKE_C_COMPILER "gcc-7")
-    set (CMAKE_CXX_COMPILER "g++-7")
-endif()
-
-
 
 # Adds all the module sources so they appear correctly in the IDE
 set_property(GLOBAL PROPERTY USE_FOLDERS YES)
@@ -44,6 +36,11 @@ target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
     CXX_VISIBILITY_PRESET hidden)
+
+if (LINUX)
+    set (TARGET_ARCH "-latomic -m64")
+endif()
+
 
 set(SourceFiles
     ${CMAKE_PROJECT_NAME}.cpp)

@@ -60,10 +60,10 @@ function buildExample()
 
         CMAKE_GENERATOR="Unix Makefiles"
 
-        echo gcc version:
-        gcc -v
-        echo g++ version:
-        g++ -v
+        export CC=/usr/bin/gcc-7
+        export CXX=/usr/bin/g++-7
+        echo gcc version: $(gcc -v)
+        echo g++ version: $(g++ -v)        
     elif [[ "$PLATFORM" == "mac" ]]; then
         BINARY_NAME="$PROJECT_NAME"
         APP_NAME=$BINARY_NAME
