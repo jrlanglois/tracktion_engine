@@ -59,6 +59,11 @@ function buildExample()
         APP_BINARY="$APP_FILE"
 
         CMAKE_GENERATOR="Unix Makefiles"
+
+        echo gcc version:
+        gcc -v
+        echo g++ version:
+        g++ -v
     elif [[ "$PLATFORM" == "mac" ]]; then
         BINARY_NAME="$PROJECT_NAME"
         APP_NAME=$BINARY_NAME
@@ -93,6 +98,7 @@ function buildExample()
     echo APP_NAME: "$APP_NAME"
     echo APP_DIR: "$APP_DIR"
     echo APP_FILE: "$APP_FILE"
+    echo CMAKE_BUILD_DIR: "$CMAKE_BUILD_DIR"
     echo CMAKE_GENERATOR: "$CMAKE_GENERATOR"
     echo RUN_EXAMPLE: "$RUN_EXAMPLE"
 
@@ -104,10 +110,10 @@ function buildExample()
     pwd
 
     # Generate build files
-    cmake -B build -G "$CMAKE_GENERATOR" $CMAKE_PLATFORM_ARGS
+    cmake -B "$CMAKE_BUILD_DIR" -G "$CMAKE_GENERATOR" $CMAKE_PLATFORM_ARGS
 
-    # # Build project
-    cmake --build build --target "$PROJECT_NAME" --config Release
+    # Build project
+    cmake --build "$CMAKE_BUILD_DIR" --target "$PROJECT_NAME" --config Release
 
     if [ "$RUN_EXAMPLE" = "1" ]; then
         echo INFO: Running example: ${APP_FILE}

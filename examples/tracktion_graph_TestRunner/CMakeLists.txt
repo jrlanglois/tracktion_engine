@@ -12,6 +12,15 @@ if (APPLE)
     set (CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE INTERNAL "")
 endif()
 
+if (LINUX)
+    # set (CMAKE_C_FLAGS "gcc-7" CACHE INTERNAL "")
+    # set (CMAKE_CXX_FLAGS "g++-7" CACHE INTERNAL "")
+    set (CMAKE_C_COMPILER "gcc-7")
+    set (CMAKE_CXX_COMPILER "g++-7")
+endif()
+
+
+
 # Adds all the module sources so they appear correctly in the IDE
 set_property(GLOBAL PROPERTY USE_FOLDERS YES)
 option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Enable Module Source Groups" ON)
