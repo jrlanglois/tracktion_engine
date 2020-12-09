@@ -117,7 +117,7 @@ function buildExample()
 
     if [ "$RUN_EXAMPLE" = "1" ]; then
         echo INFO: Running example: ${APP_FILE}
-        ${APP_FILE}
+        ${APP_FILE} --junit-xml-file "$ROOT/bin/test_results/TEST-${APP_NAME}.xml"
     else
         echo INFO: Not running example: ${APP_FILE}
     fi
