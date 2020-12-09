@@ -37,11 +37,6 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
     CXX_VISIBILITY_PRESET hidden)
 
-if (LINUX)
-    set (TARGET_ARCH "-latomic -m64")
-endif()
-
-
 set(SourceFiles
     ${CMAKE_PROJECT_NAME}.cpp)
 
@@ -70,3 +65,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     juce::juce_audio_processors
     juce::juce_audio_utils
     juce::juce_recommended_warning_flags)
+
+if (LINUX)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-latomic -m64")
+endif()
