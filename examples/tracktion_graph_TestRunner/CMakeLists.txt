@@ -66,6 +66,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     juce::juce_audio_utils
     juce::juce_recommended_warning_flags)
 
-if (LINUX)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-latomic -m64")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-latomic")
+  target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-m64")
 endif()
