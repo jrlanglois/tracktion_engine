@@ -132,4 +132,6 @@ function buildExample()
 }
 
 
+buildExample "TestRunner" "1"
 buildExample "tracktion_graph_TestRunner" "1"
+buildExample "tracktion_graph_PerformanceTests" "1"
