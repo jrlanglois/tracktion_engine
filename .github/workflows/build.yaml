@@ -56,7 +56,7 @@ jobs:
             export DISABLE_TOOLS=0
             export GRAPH_UNIT_TESTS_QUICK_VALIDATE=0
           else
-            export DISABLE_TOOLS=1
+            export DISABLE_TOOLS=0
             export GRAPH_UNIT_TESTS_QUICK_VALIDATE=0
           fi
 

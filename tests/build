@@ -133,6 +133,23 @@ function buildExample()
     if [ "$RUN_EXAMPLE" = "1" ]; then
         echo INFO: Running example: ${APP_FILE}
         ${APP_FILE} --junit-xml-file "$ROOT/bin/test_results/TEST-${APP_NAME}.xml"
+
+        if [ -z "$DISABLE_TOOLS" ]; then
+            if [ "PLATFORM" = "mac" ]; then
+                cd "$CMAKE_BUILD_DIR"
+
+                echo INFO: Running with Asan: ${APP_FILE}
+                cmake --build "$CMAKE_BUILD_DIR" --target "$PROJECT_NAME" --config Release -- -enableAddressSanitizer YES LLVM_LTO=NO GRAPH_UNIT_TESTS_QUICK_VALIDATE=${GRAPH_UNIT_TESTS_QUICK_VALIDATE}
+                ${APP_FILE} --junit-xml-file "$ROOT/bin/test_results/TEST-${APP_NAME}_asan.xml"
+
+                echo INFO: Running with Tsan: ${APP_FILE}
+                cmake --build "$CMAKE_BUILD_DIR" --target "$PROJECT_NAME" --config Release -- -enableThreadSanitizer YES LLVM_LTO=NO GRAPH_UNIT_TESTS_QUICK_VALIDATE=${GRAPH_UNIT_TESTS_QUICK_VALIDATE}
+                ${APP_FILE} --junit-xml-file "$ROOT/bin/test_results/TEST-${APP_NAME}_tsan.xml"
+
+                echo INFO: Running static analyser: ${APP_FILE}
+                xcodebuild analyze -quiet -configuration Release LLVM_LTO=NO
+            fi
+        fi
     else
         echo INFO: Not running example: ${APP_FILE}
     fi
