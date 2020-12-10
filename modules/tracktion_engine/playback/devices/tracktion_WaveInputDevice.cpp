@@ -1304,7 +1304,12 @@ StringArray WaveInputDevice::getRecordFormatNames()
     auto& afm = engine.getAudioFileFormatManager();
     s.add (afm.getWavFormat()->getFormatName());
     s.add (afm.getAiffFormat()->getFormatName());
+   #if JUCE_USE_FLAC
     s.add (afm.getFlacFormat()->getFormatName());
+   #endif
+   #if JUCE_USE_OGGVORBIS
+    s.add (afm.getOggFormat()->getFormatName());
+   #endif
 
     return s;
 }

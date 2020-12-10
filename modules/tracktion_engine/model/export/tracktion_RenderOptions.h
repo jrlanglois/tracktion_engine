@@ -23,9 +23,15 @@ public:
     {
         wav = 0,
         aiff,
+       #if JUCE_USE_FLAC
         flac,
+       #endif
+       #if JUCE_USE_OGGVORBIS
         ogg,
+       #endif
+       #if JUCE_USE_LAME_AUDIO_FORMAT
         mp3,
+       #endif
         midi,
         numFormats
     };

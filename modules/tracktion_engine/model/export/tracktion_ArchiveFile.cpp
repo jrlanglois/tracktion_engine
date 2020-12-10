@@ -11,6 +11,7 @@
 namespace tracktion_engine
 {
 
+#if JUCE_USE_OGGVORBIS
 static bool isWorthConvertingToOgg (AudioFile& source, int quality)
 {
     if (dynamic_cast<OggVorbisAudioFormat*> (source.getFormat()) != nullptr)
@@ -23,6 +24,7 @@ static bool isWorthConvertingToOgg (AudioFile& source, int quality)
 
     return true;
 }
+ #endif
 
 //==============================================================================
 TracktionArchiveFile::IndexEntry::IndexEntry (InputStream& in)
@@ -212,11 +214,15 @@ bool TracktionArchiveFile::extractFile (int index, const File& destDirectory, Fi
 
     if (storedName != entries[index]->originalName)
     {
+       #if JUCE_USE_FLAC
         if (storedName.endsWithIgnoreCase (".flac"))
             return AudioFileUtils::readFromFormat<FlacAudioFormat> (engine, *source, destFile);
+       #endif
 
+       #if JUCE_USE_OGGVORBIS
         if (storedName.endsWithIgnoreCase (".ogg"))
             return AudioFileUtils::readFromFormat<OggVorbisAudioFormat> (engine, *source, destFile);
+       #endif
 
         if (storedName.endsWithIgnoreCase (".gz"))
             source = std::make_unique<GZIPDecompressorInputStream> (source.release(), true);
@@ -407,7 +413,7 @@ bool TracktionArchiveFile::addFile (const File& f, const String& filenameToUse, 
                 {
                     AudioFile af (engine, f);
 
-                    if (af.isOggFile() || af.isMp3File() || af.isFlacFile())
+                    if (af.isCompressed())
                     {
                         out.writeFromInputStream (in, -1); // no point re-compressing these
                     }
@@ -421,6 +427,8 @@ bool TracktionArchiveFile::addFile (const File& f, const String& filenameToUse, 
                             GZIPCompressorOutputStream deflater (&out, 9, false);
                             deflater.writeFromInputStream (in, -1);
                         }
+
+                       #if JUCE_USE_FLAC
                         else
                         {
                             entry->storedName = filenameRoot + ".flac";
@@ -432,6 +440,7 @@ bool TracktionArchiveFile::addFile (const File& f, const String& filenameToUse, 
                                 return false;
                             }
                         }
+                       #endif
                     }
 
                     break;
@@ -444,10 +453,12 @@ bool TracktionArchiveFile::addFile (const File& f, const String& filenameToUse, 
                     entry->storedName = filenameRoot + ".ogg";
                     entry->originalName = entry->storedName;  // oggs get extracted as oggs, not named back to how they were
 
-                    auto quality = getOggQuality (compression);
                     AudioFile af (engine, f);
 
+                   #if JUCE_USE_OGGVORBIS
+                    auto quality = getOggQuality (compression);
                     if (! isWorthConvertingToOgg (af, quality))
+                   #endif
                     {
                         FileInputStream fin (af.getFile());
 
@@ -460,12 +471,14 @@ bool TracktionArchiveFile::addFile (const File& f, const String& filenameToUse, 
 
                         out.writeFromInputStream (fin, -1);
                     }
+                   #if JUCE_USE_OGGVORBIS
                     else if (! AudioFileUtils::convertToFormat<OggVorbisAudioFormat> (engine, f, out, quality, StringPairArray()))
                     {
                         needToWriteIndex = true;
                         TRACKTION_LOG_ERROR ("Failed to add file to archive ogg: " + f.getFileName());
                         return false;
                     }
+                   #endif
 
                     break;
                 }
@@ -517,6 +530,7 @@ void TracktionArchiveFile::addFileInfo (const String& filename, const String& it
     }
 }
 
+#if JUCE_USE_OGGVORBIS
 int TracktionArchiveFile::getOggQuality (CompressionType c)
 {
     auto numOptions = OggVorbisAudioFormat().getQualityOptions().size();
@@ -526,5 +540,6 @@ int TracktionArchiveFile::getOggQuality (CompressionType c)
 
     return numOptions / 5;
 }
+#endif
 
 }

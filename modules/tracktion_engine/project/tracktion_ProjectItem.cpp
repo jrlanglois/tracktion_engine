@@ -323,10 +323,22 @@ File ProjectItem::getSourceFile()
         else if (engine.getAudioFileFormatManager().canOpen (f))
         {
             // if not found, look for a compressed version to use..
-            auto substitute = f.withFileExtension ("flac");
+            auto substitute = f.withFileExtension ("aiff");
 
+           #if JUCE_USE_OGGVORBIS
             if (! substitute.existsAsFile())
                 substitute = f.withFileExtension ("ogg");
+           #endif
+
+           #if JUCE_USE_FLAC
+            if (! substitute.existsAsFile())
+                substitute = f.withFileExtension ("flac");
+           #endif
+
+           #if JUCE_USE_LAME_AUDIO_FORMAT
+            if (! substitute.existsAsFile())
+                substitute = f.withFileExtension ("mp3");
+           #endif
 
             if (substitute.existsAsFile())
                 sourceFile = substitute;

@@ -63,6 +63,7 @@ public:
             edit->getTempDirectory (false).deleteRecursively();
         }
         
+       #if JUCE_USE_OGGVORBIS
         beginTest ("Source file with different sample rate");
         {
             auto sinFile96Ogg = getSinFile<OggVorbisAudioFormat> (96000.0);
@@ -89,6 +90,7 @@ public:
             engine.getAudioFileManager().releaseAllFiles();
             edit->getTempDirectory (false).deleteRecursively();
         }
+       #endif
     }
 
     void expectPeak (Edit& edit, EditTimeRange tr, Array<Track*> tracks, float expectedPeak)

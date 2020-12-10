@@ -26,15 +26,22 @@ AudioFileFormatManager::AudioFileFormatManager()
     writeFormats.add (aiffFormat.get());
 
     floatFormat = std::make_unique<FloatAudioFormat>();
-    readFormats.add (floatFormat.get());
 
+   #if TRACKTION_USE_FLOAT_FORMAT
+    readFormats.add (floatFormat.get());
+   #endif
+
+   #if JUCE_USE_OGGVORBIS
     oggFormat = std::make_unique<juce::OggVorbisAudioFormat>();
     readFormats.add (oggFormat.get());
     writeFormats.add (oggFormat.get());
+   #endif
 
+   #if JUCE_USE_FLAC
     flacFormat = std::make_unique<juce::FlacAudioFormat>();
     readFormats.add (flacFormat.get());
     writeFormats.add (flacFormat.get());
+   #endif
 
    #if TRACKTION_ENABLE_REX
     rexFormat = std::make_unique<RexAudioFormat>();
@@ -44,7 +51,9 @@ AudioFileFormatManager::AudioFileFormatManager()
    #if JUCE_MAC || JUCE_IOS
     nativeAudioFormat = std::make_unique<juce::CoreAudioFormat>();
     readFormats.add (nativeAudioFormat.get());
-   #elif JUCE_WINDOWS
+   #endif
+
+   #if JUCE_USE_WINDOWS_MEDIA_FORMAT
     nativeAudioFormat = std::make_unique<juce::WindowsMediaAudioFormat>();
     readFormats.add (nativeAudioFormat.get());
    #endif
@@ -58,12 +67,20 @@ AudioFileFormatManager::AudioFileFormatManager()
     //  this bit assumes all writable formats are also readable
     allFormats = readFormats;
 
-
     readFormatManager.registerFormat (new juce::WavAudioFormat(), true);
     readFormatManager.registerFormat (new juce::AiffAudioFormat(), false);
+
+   #if TRACKTION_USE_FLOAT_FORMAT
     readFormatManager.registerFormat (new FloatAudioFormat(), false);
+   #endif
+
+   #if JUCE_USE_OGGVORBIS
     readFormatManager.registerFormat (new juce::OggVorbisAudioFormat(), false);
+   #endif
+
+   #if JUCE_USE_FLAC
     readFormatManager.registerFormat (new juce::FlacAudioFormat(), false);
+   #endif
 
    #if TRACKTION_ENABLE_REX
     readFormatManager.registerFormat (new RexAudioFormat(), false);
@@ -71,7 +88,9 @@ AudioFileFormatManager::AudioFileFormatManager()
 
    #if JUCE_MAC || JUCE_IOS
     readFormatManager.registerFormat (new juce::CoreAudioFormat(), false);
-   #elif JUCE_WINDOWS
+   #endif
+
+   #if JUCE_USE_WINDOWS_MEDIA_FORMAT
     readFormatManager.registerFormat (new juce::WindowsMediaAudioFormat(), false);
    #endif
 
@@ -81,13 +100,25 @@ AudioFileFormatManager::AudioFileFormatManager()
 
     writeFormatManager.registerFormat (new juce::WavAudioFormat(), true);
     writeFormatManager.registerFormat (new juce::AiffAudioFormat(), false);
+
+   #if TRACKTION_USE_FLOAT_FORMAT
     writeFormatManager.registerFormat (new FloatAudioFormat(), false);
+   #endif
+
+   #if JUCE_USE_OGGVORBIS
     writeFormatManager.registerFormat (new juce::OggVorbisAudioFormat(), false);
+   #endif
+
+   #if JUCE_USE_FLAC
     writeFormatManager.registerFormat (new juce::FlacAudioFormat(), false);
+   #endif
 
     memoryMappedFormatManager.registerFormat (new juce::WavAudioFormat(), true);
     memoryMappedFormatManager.registerFormat (new juce::AiffAudioFormat(), false);
+
+   #if TRACKTION_USE_FLOAT_FORMAT
     memoryMappedFormatManager.registerFormat (new FloatAudioFormat(), false);
+   #endif
 }
 
 AudioFileFormatManager::~AudioFileFormatManager()
@@ -95,6 +126,7 @@ AudioFileFormatManager::~AudioFileFormatManager()
     CRASH_TRACER
 }
 
+#if JUCE_USE_LAME_AUDIO_FORMAT
 void AudioFileFormatManager::addLameFormat (std::unique_ptr<juce::AudioFormat> lameForArray,
                                             std::unique_ptr<juce::AudioFormat> lameForAccess)
 {
@@ -105,6 +137,7 @@ void AudioFileFormatManager::addLameFormat (std::unique_ptr<juce::AudioFormat> l
     writeFormats.add (lameForArray.get());
     writeFormatManager.registerFormat (lameForArray.release(), false);
 }
+#endif
 
 void AudioFileFormatManager::addFormat (std::function<juce::AudioFormat*()> formatCreator, bool isWritable, bool isMemoryMappable)
 {

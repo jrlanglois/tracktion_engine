@@ -90,7 +90,10 @@ private:
     juce::OwnedArray<IndexEntry> entries;
     void readIndex();
 
+   #if JUCE_USE_OGGVORBIS
     static int getOggQuality (CompressionType);
+   #endif
+
     static int getMagicNumber();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TracktionArchiveFile)

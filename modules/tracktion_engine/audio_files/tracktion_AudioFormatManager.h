@@ -23,8 +23,10 @@ public:
     //==============================================================================
     const juce::Array<juce::AudioFormat*>& getWriteFormats() const     { return writeFormats; }
 
+   #if JUCE_USE_LAME_AUDIO_FORMAT
     void addLameFormat (std::unique_ptr<juce::AudioFormat> lameForArray,
                         std::unique_ptr<juce::AudioFormat> lameForAccess);
+   #endif
 
     void addFormat (std::function<juce::AudioFormat*()> formatCreator, bool isWritable, bool isMemoryMappable);
 
@@ -38,11 +40,22 @@ public:
     juce::AudioFormat* getDefaultFormat() const     { return wavFormat.get(); }
     juce::AudioFormat* getWavFormat() const         { return wavFormat.get(); }
     juce::AudioFormat* getAiffFormat() const        { return aiffFormat.get(); }
+
     juce::AudioFormat* getFrozenFileFormat() const  { return floatFormat.get(); }
+
+   #if JUCE_USE_OGGVORBIS
     juce::AudioFormat* getOggFormat() const         { return oggFormat.get(); }
+   #endif
+
+   #if JUCE_USE_FLAC
     juce::AudioFormat* getFlacFormat() const        { return flacFormat.get(); }
+   #endif
+
     juce::AudioFormat* getNativeAudioFormat() const { return nativeAudioFormat.get(); }
+
+   #if JUCE_USE_LAME_AUDIO_FORMAT
     juce::AudioFormat* getLameFormat() const        { return lameFormat.get(); }
+   #endif
 
    #if TRACKTION_ENABLE_REX
     juce::AudioFormat* getRexFormat() const         { return rexFormat.get(); }

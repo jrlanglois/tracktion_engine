@@ -448,9 +448,14 @@ AudioFormat* RenderOptions::getAudioFormat()
     if (format == midi)      return {};
     if (format == wav)       return afm.getWavFormat();
     if (format == aiff)      return afm.getAiffFormat();
+   #if JUCE_USE_FLAC
     if (format == flac)      return afm.getFlacFormat();
+   #endif
+   #if JUCE_USE_OGGVORBIS
     if (format == ogg)       return afm.getOggFormat();
+   #endif
 
+   #if JUCE_USE_LAME_AUDIO_FORMAT
     if (format == mp3)
     {
         LAMEManager::registerAudioFormat (afm);
@@ -458,6 +463,7 @@ AudioFormat* RenderOptions::getAudioFormat()
         if (auto af = afm.getLameFormat())
             return af;
     }
+   #endif
 
     format = wav;
     uiNeedsRefresh = true;
@@ -801,13 +807,15 @@ bool RenderOptions::getUINeedsRefresh()
 //==============================================================================
 RenderOptions::TargetFileFormat RenderOptions::setFormat (TargetFileFormat f)
 {
-    auto& afm = engine.getAudioFileFormatManager();
     format = f;
 
+   #if JUCE_USE_LAME_AUDIO_FORMAT
+    auto& afm = engine.getAudioFileFormatManager();
     LAMEManager::registerAudioFormat (afm);
 
     if (format == mp3 && afm.getLameFormat() == nullptr)
         format = wav;
+   #endif
 
     updateFileName();
     updateOptionsForFormat();
@@ -821,9 +829,15 @@ void RenderOptions::setFormatType (const String& typeString)
 
     if      (typeString == am.getWavFormat()->getFormatName())     setFormat (wav);
     else if (typeString == am.getAiffFormat()->getFormatName())    setFormat (aiff);
+   #if JUCE_USE_FLAC
     else if (typeString == am.getFlacFormat()->getFormatName())    setFormat (flac);
+   #endif
+   #if JUCE_USE_OGGVORBIS
     else if (typeString == am.getOggFormat()->getFormatName())     setFormat (ogg);
+   #endif
+   #if JUCE_USE_LAME_AUDIO_FORMAT
     else if (typeString == "MP3 file")                             setFormat (mp3);
+   #endif
     else if (typeString == "MIDI file")                            setFormat (midi);
     else                                                           setFormat (wav);
 }
@@ -836,9 +850,15 @@ String RenderOptions::getFormatTypeName (TargetFileFormat fmt)
     {
         case wav:       return am.getWavFormat()->getFormatName();
         case aiff:      return am.getAiffFormat()->getFormatName();
+       #if JUCE_USE_FLAC
         case flac:      return am.getFlacFormat()->getFormatName();
+       #endif
+       #if JUCE_USE_OGGVORBIS
         case ogg:       return am.getOggFormat()->getFormatName();
+       #endif
+       #if JUCE_USE_LAME_AUDIO_FORMAT
         case mp3:       return am.getLameFormat() == nullptr ? String() : am.getLameFormat()->getFormatName();
+       #endif
         case midi:      return "MIDI file";
         default:        return {};
     }
@@ -997,8 +1017,13 @@ StringArray RenderOptions::getFormatTypes()
 
     if (! isRender())
     {
+      #if JUCE_USE_FLAC
         formats.add (am.getFlacFormat()->getFormatName());
+      #endif
+
+      #if JUCE_USE_OGGVORBIS
         formats.add (am.getOggFormat()->getFormatName());
+      #endif
 
       #if JUCE_USE_LAME_AUDIO_FORMAT
         auto& afm = engine.getAudioFileFormatManager();
@@ -1048,16 +1073,23 @@ bool RenderOptions::isMarkedRegionBigEnough (EditTimeRange region)
 StringArray RenderOptions::getQualitiesList() const
 {
     auto& af = engine.getAudioFileFormatManager();
+    juce::ignoreUnused (af);
 
+   #if JUCE_USE_FLAC
     if (format == flac)
         return af.getFlacFormat()->getQualityOptions();
+   #endif
 
+   #if JUCE_USE_OGGVORBIS
     if (format == ogg)
         return af.getOggFormat()->getQualityOptions();
+   #endif
 
+   #if JUCE_USE_LAME_AUDIO_FORMAT
     if (auto lameFormat = af.getLameFormat())
         if (format == mp3)
             return lameFormat->getQualityOptions();
+   #endif
 
     return {};
 }
