@@ -1,6 +1,19 @@
 #!/bin/bash -e
 
 #========================================================
+# Generates IDE files, runs tests and analysis for
+# example projects
+# 
+# By default this will do all of the above. You can
+# selectively disable behaviour by setting the following 
+# enviroment variables:
+# 
+# DISABLE_BUILD:    Set to 1 to disable building
+# DISABLE_TOOLS:    Set to 1 to disable Tsan and Asan builds
+# 
+#========================================================
+
+#========================================================
 # Configure build environment
 #========================================================
 cmake --version
@@ -112,8 +125,10 @@ function buildExample()
     # Generate build files
     cmake -B "$CMAKE_BUILD_DIR" -G "$CMAKE_GENERATOR" $CMAKE_PLATFORM_ARGS
 
-    # Build project
-    cmake --build "$CMAKE_BUILD_DIR" --target "$PROJECT_NAME" --config Release
+    if [ -z "$DISABLE_BUILD" ]; then
+        # Build project
+        cmake --build "$CMAKE_BUILD_DIR" --target "$PROJECT_NAME" --config Release
+    fi
 
     if [ "$RUN_EXAMPLE" = "1" ]; then
         echo INFO: Running example: ${APP_FILE}
@@ -121,17 +136,20 @@ function buildExample()
     else
         echo INFO: Not running example: ${APP_FILE}
     fi
-
-    # if [[ "$PLATFORM" == "linux" ]]; then
-    #     make CONFIG=Release
-    # elif [[ "$PLATFORM" == "mac" ]]; then
-    #     xcodebuild -configuration Release 
-    # elif [[ "$PLATFORM" == "windows" ]]; then
-    #     "$MSBUILD_EXE" "$PROJECT_NAME".sln -p:VisualStudioVersion=15.0 -m -t:Build -p:Configuration=Release -p:Platform=x64 -p:PreferredToolArchitecture=x64 -p:TreatWarningsAsErrors=true    
-    # fi
 }
 
 
+# First build and test these examples
 buildExample "TestRunner" "1"
 buildExample "tracktion_graph_TestRunner" "1"
 buildExample "tracktion_graph_PerformanceTests" "1"
+
+# Then just build these examples
+buildExample "EngineInPluginDemo"
+buildExample "MidiRecordingDemo"
+buildExample "PatternGeneratorDemo"
+buildExample "PitchAndTimeDemo"
+buildExample "PlaybackDemo"
+buildExample "PluginDemo"
+buildExample "RecordingDemo"
+buildExample "StepSequencerDemo"
