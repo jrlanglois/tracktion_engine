@@ -95,4 +95,4 @@ jobs:
         with:
           check_name: Performance Test Results
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./**/TEST-**PerformanceTests**.xml
+          files: ./**/TEST-*PerformanceTests*.xml
