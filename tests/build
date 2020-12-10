@@ -135,7 +135,7 @@ function buildExample()
         ${APP_FILE} --junit-xml-file "$ROOT/bin/test_results/TEST-${APP_NAME}.xml"
 
         if [ -z "$DISABLE_TOOLS" ]; then
-            if [ "PLATFORM" = "mac" ]; then
+            if [ "$PLATFORM" = "mac" ]; then
                 cd "$CMAKE_BUILD_DIR"
 
                 echo INFO: Running with Asan: ${APP_FILE}
